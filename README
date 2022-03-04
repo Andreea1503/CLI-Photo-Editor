@@ -1,0 +1,84 @@
+// Copyright Spinochi Andreea - 312CA
+
+...............................................................................
+
+This project was about creating an image editor for PGM and ppm files,
+so I started it by creating two structs: one that contains the initial
+values of the image(width, height, coloration) and one that contains the
+values of the pixels. I added an enumeration used to check if the image is
+colored or uncolored. In the main part of the program, I used the repetitive
+instruction while for reading the commands and calling the associated
+functions.
+
+...............................................................................
+
+->read_command function was used to read every command introduced from stdin
+
+->LOAD <file> command calls the load_file function which loads the file in the
+memory. If there's another image loaded, the function deallocates the memory
+for it and it closes the file, so it can make space for the new one. First of
+all, the function opens the file and allocates memory for the matrix of pixels.
+If the magic word is P2 or P3 the file is loaded in an ASCII format, otherwise
+if the magic word is P5 or P6 the file is loaded in a BINARY format. Using the
+function load_ASCII the matrix is read from an ASCII file and using the
+function load_BINARY the matrix is read from a BINARY file. For the binary one,
+I saved the position of the cursor in the file, closed it and then reopened it
+for binary. Then I returned to the saved position of the cursor and started
+reading the matrix. Also, if there are commented lines in the file, I used
+the skiplines function to skip the line.
+
+->SELECT ALL command calls the SELECT__ALL function used to select the
+coordinates for the edges of the image.
+
+->SELECT <x1> <y1> <x2> <y2> command calls the SELECT function which swaps the
+coordinates if there are not in order(x1 should be smaller than x2 and y1
+should be smaller than y2). Then, it checks if there is an image loaded. If
+it is and the coordinates to be selected are negative numbers, exceed the
+bounds of the image or are equal, it means that they are invalid, otherwise if
+they are valid, the old coordinates are changed with the new ones.
+
+---check_selection--- this function checks if the selected coordinates are
+numbers. If there aren't numbers, it means that the coordinates aren't valid,
+so the selection won't be made.
+
+->ROTATE <angle> command calls the ROTATE function which checks if the image is
+loaded or not and then if the matrix to be rotated is the full image or just a
+portion. If the matrix is just a rectangular portion of the image the rotation
+can't be made. If the angle is found among the ones permitted, the matrix will
+be rotated. The function ROTATE_angle allocates the memory for the auxiliary
+matrix. After that, the full matrix will be copied in the auxiliary one. If the
+matrix is rectangular, I deallocated the memory and allocated it again with the
+lines and columns switched and then I switched the initial values of the lines
+and columns. Then, I rotated the image and in the end, I saved the bounds so they
+won't be lost and deallocated the memory for the auxiliary matrix.
+
+->CROP command calls the CROP_image function that crops the image and resets
+the initial bounds of the image. This function checks if any image is loaded and
+if it is the new bounds of the image are stored. The memory for the auxiliary
+matrix is allocated and I copied the cropped matrix in the auxiliary one. Then
+I deallocated the memory for the initial matrix. After deallocating the memory,
+I copied the cropped matrix into the initial matrix, updated the bounds of
+the image and modified the selection with the updated bounds.
+
+->APPLY <parameter> command calls the APPLY function that puts filters on the
+image. I allocated the memory for the auxiliary matrix used to apply the
+filters. Then I copied the initial matrix into the auxiliary one and applied
+the filters by multiplying every pixel of the auxiliary matrix with the ones
+found in the kernel. Every multiplication is then added to every pixel of the
+auxiliary matrix and this sum is now the new value of the pixel of the image.
+Then the memory for the auxiliary matrix is deallocated.
+
+---check_apply--- this function checks if the apply command is valid and
+calls the function that applies the filters if it is.
+
+->SAVE <file_name> |ascii| command calls the SAVE_ascii or SAVE_binary
+function, depending on the existence of the parameter ASCII. I opened the file
+which should hold the modified image, wrote the colorization, width, height and
+the max value of the matrix and then the pixels for the image, saved and then
+closed the file.
+
+->EXIT command calls the function EXIT and is used to exit the program
+gracefully. It deallocates the memory for the image, closes the file and
+exits the program.
+
+
